@@ -79,13 +79,13 @@ function loadYear(year) {
             layerControl.remove();
             layerControl = L.control.layers(
                 { "Heatmap": heatLayer, "Points": pointLayer },
-                {}
+                null,
+                { collapsed: false }
             ).addTo(map);
-        });
 }
 
-// Layer toggle control (initialized empty)
-var layerControl = L.control.layers({}, {}).addTo(map);
+// Create an empty layer control (will be populated after loading data)
+var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
 
 // Load default year
 loadYear("2025");
