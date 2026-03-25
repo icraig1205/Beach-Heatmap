@@ -8,6 +8,21 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 var heatLayer;
 
+// Add legend
+var legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+    var div = L.DomUtil.create("div", "legend");
+    div.innerHTML += "<h4>Water Quality</h4>";
+    div.innerHTML += '<i style="background: #006400"></i><span>Excellent (<5%)</span><br>';
+    div.innerHTML += '<i style="background: #00A000"></i><span>Good (5–20%)</span><br>';
+    div.innerHTML += '<i style="background: #FFA500"></i><span>Fair (20–30%)</span><br>';
+    div.innerHTML += '<i style="background: #FF0000"></i><span>Poor (>30%)</span><br>';
+    return div;
+};
+
+legend.addTo(map);
+
 // Load GeoJSON and build heatmap
 function loadYear(year) {
     fetch(`data/${year}.geojson`)
