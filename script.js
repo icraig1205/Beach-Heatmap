@@ -6,9 +6,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18
 }).addTo(map);
 
+// Layers
 var heatLayer;
+var pointLayer;
 
-// Add legend
+// Legend
 var legend = L.control({ position: "bottomright" });
 
 legend.onAdd = function () {
@@ -23,31 +25,67 @@ legend.onAdd = function () {
 
 legend.addTo(map);
 
-// Load GeoJSON and build heatmap
+// Load GeoJSON and build layers
 function loadYear(year) {
     fetch(`data/${year}.geojson`)
         .then(response => response.json())
         .then(data => {
-            if (heatLayer) {
-                map.removeLayer(heatLayer);
-            }
 
-            // Convert GeoJSON to heatmap points
+            // Remove old layers
+            if (heatLayer) map.removeLayer(heatLayer);
+            if (pointLayer) map.removeLayer(pointLayer);
+
+            // Build heatmap points
             var heatPoints = data.features.map(f => {
                 var lat = f.geometry.coordinates[1];
                 var lon = f.geometry.coordinates[0];
-                var weight = f.properties.rate_postings;
-                if (weight === 0) weight = 0.1;   // give zero values a tiny weight
+                var weight = f.properties.rate_postings_percent || 0;
+                if (weight === 0) weight = 0.1; // ensure visibility
                 return [lat, lon, weight];
             });
 
+            // Create heatmap layer
             heatLayer = L.heatLayer(heatPoints, {
-                radius: 25,
-                blur: 15,
+                radius: 40,
+                blur: 25,
                 maxZoom: 10
-            }).addTo(map);
+            });
+
+            // Create category-colored point layer
+            pointLayer = L.geoJSON(data, {
+                pointToLayer: function (feature, latlng) {
+                    let rate = feature.properties.rate_postings_percent;
+
+                    let color =
+                        rate < 5 ? "#006400" :        // Excellent
+                        rate <= 20 ? "#00A000" :      // Good
+                        rate <= 30 ? "#FFA500" :      // Fair
+                        "#FF0000";                    // Poor
+
+                    return L.circleMarker(latlng, {
+                        radius: 8,
+                        fillColor: color,
+                        color: "#000",
+                        weight: 1,
+                        fillOpacity: 0.85
+                    });
+                }
+            });
+
+            // Default layer (heatmap)
+            heatLayer.addTo(map);
+
+            // Update layer control
+            layerControl.remove();
+            layerControl = L.control.layers(
+                { "Heatmap": heatLayer, "Points": pointLayer },
+                {}
+            ).addTo(map);
         });
 }
+
+// Layer toggle control (initialized empty)
+var layerControl = L.control.layers({}, {}).addTo(map);
 
 // Load default year
 loadYear("2025");
