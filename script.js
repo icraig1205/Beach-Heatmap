@@ -35,8 +35,26 @@ function loadYear(year) {
         .then(response => response.json())
         .then(data => {
 
-            fullYearData = data;  // store full dataset for filtering
-            updateMapForWeek(currentWeek);  // draw initial week
+            // Store full dataset for filtering
+            fullYearData = data;
+
+            // Extract all unique weeks in this dataset
+            const weeks = [...new Set(
+                data.features.map(f => f.properties.week)
+            )].sort((a, b) => a - b);
+
+            // Update slider min/max dynamically
+            const slider = document.getElementById("weekSlider");
+            slider.min = weeks[0];
+            slider.max = weeks[weeks.length - 1];
+
+            // Set slider to the first available week
+            slider.value = weeks[0];
+            document.getElementById("weekLabel").textContent = weeks[0];
+
+            // Update currentWeek and draw the map
+            currentWeek = weeks[0];
+            updateMapForWeek(currentWeek);
         });
 }
 
