@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "2024_all",
+"name": "2024",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "field_1": 1, "Beach_ID": "BATES_BEACH", "year": 2024, "week": 25, "Latitude": 42.338465, "Longitude": -81.837911, "lake_samples_total": 1, "lake_postings": 0, "rate_postings": 0.0, "rate_postings_percent": 0.0, "quality": "Excellent" }, "geometry": { "type": "Point", "coordinates": [ -81.837911, 42.338465 ] } },
