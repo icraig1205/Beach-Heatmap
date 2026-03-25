@@ -60,23 +60,29 @@ function loadYear(year) {
 
 function updateMapForWeek(week) {
 
+    // Ensure week is a number
+    week = Number(week);
     currentWeek = week;
 
-    // Filter features by week
+    // --- 1. Detect which layer is currently active BEFORE removing anything ---
+    const wasUsingPoints = pointLayer && map.hasLayer(pointLayer);
+    const wasUsingHeat = heatLayer && map.hasLayer(heatLayer);
+
+    // --- 2. Filter features by week ---
     const filtered = {
         type: "FeatureCollection",
         features: fullYearData.features.filter(f => f.properties.week === week)
     };
 
-    // Remove old layers
+    // --- 3. Remove old layers ---
     if (heatLayer) map.removeLayer(heatLayer);
     if (pointLayer) map.removeLayer(pointLayer);
 
-    // Build heatmap points
-    var heatPoints = filtered.features.map(f => {
-        var lat = f.geometry.coordinates[1];
-        var lon = f.geometry.coordinates[0];
-        var weight = f.properties.rate_postings_percent || 0;
+    // --- 4. Rebuild heatmap layer ---
+    const heatPoints = filtered.features.map(f => {
+        const lat = f.geometry.coordinates[1];
+        const lon = f.geometry.coordinates[0];
+        let weight = f.properties.rate_postings_percent || 0;
         if (weight === 0) weight = 0.1;
         return [lat, lon, weight];
     });
@@ -87,12 +93,12 @@ function updateMapForWeek(week) {
         maxZoom: 10
     });
 
-    // Build point layer
+    // --- 5. Rebuild point layer ---
     pointLayer = L.geoJSON(filtered, {
         pointToLayer: function (feature, latlng) {
-            let rate = feature.properties.rate_postings_percent;
+            const rate = feature.properties.rate_postings_percent;
 
-            let color =
+            const color =
                 rate < 5 ? "#006400" :
                 rate <= 20 ? "#00A000" :
                 rate <= 30 ? "#FFA500" :
@@ -108,18 +114,17 @@ function updateMapForWeek(week) {
         }
     });
 
-    // Preserve the user's current layer choice
-    let usePoints = map.hasLayer(pointLayer);
-    let useHeat = map.hasLayer(heatLayer);
-
-    // After rebuilding layers, re-add the correct one
-    if (usePoints) {
+    // --- 6. Restore whichever layer the user was viewing ---
+    if (wasUsingPoints) {
         pointLayer.addTo(map);
+    } else if (wasUsingHeat) {
+        heatLayer.addTo(map);
     } else {
+        // First load fallback
         heatLayer.addTo(map);
     }
 
-    // Update layer toggle
+    // --- 7. Rebuild layer toggle ---
     layerControl.remove();
     layerControl = L.control.layers(
         { "Heatmap": heatLayer, "Points": pointLayer },
