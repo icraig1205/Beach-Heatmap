@@ -46,7 +46,7 @@ select {
 
 #weekSlider {
     width: 80%;          /* make it longer */
-    height: 30px;        /* increase touch area */
+    height: 10px;        /* increase touch area */
     margin: 10px;
 }
 
