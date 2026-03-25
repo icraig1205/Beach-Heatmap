@@ -1,4 +1,4 @@
-// Create the map centered on Ontario
+// Create the map centred on Ontario
 var map = L.map('map').setView([44.0, -79.5], 6);
 
 // Basemap
@@ -24,6 +24,10 @@ legend.onAdd = function () {
 };
 
 legend.addTo(map);
+
+//Week slider
+var fullYearData = null;  // stores all weekly records for the selected year
+var currentWeek = 1;
 
 // Load GeoJSON and build layers
 function loadYear(year) {
