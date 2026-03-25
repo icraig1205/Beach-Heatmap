@@ -108,8 +108,16 @@ function updateMapForWeek(week) {
         }
     });
 
-    // Default layer
-    heatLayer.addTo(map);
+    // Preserve the user's current layer choice
+    let usePoints = map.hasLayer(pointLayer);
+    let useHeat = map.hasLayer(heatLayer);
+
+    // After rebuilding layers, re-add the correct one
+    if (usePoints) {
+        pointLayer.addTo(map);
+    } else {
+        heatLayer.addTo(map);
+    }
 
     // Update layer toggle
     layerControl.remove();
