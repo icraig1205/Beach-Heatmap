@@ -16,3 +16,30 @@ select {
     margin: 10px;
     padding: 5px;
 }
+
+.legend {
+    background: white;
+    padding: 10px;
+    line-height: 18px;
+    color: #333;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    font-size: 14px;
+}
+
+.legend h4 {
+    margin: 0 0 5px;
+    font-size: 16px;
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.9;
+}
+
+.legend span {
+    line-height: 18px;
+}
