@@ -1,4 +1,6 @@
-// Create the map centred on Ontario
+// ------------------------------------------------------------
+// 1. Create the map
+// ------------------------------------------------------------
 var map = L.map('map').setView([44.0, -79.5], 6);
 
 // Basemap
@@ -9,8 +11,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // Layers
 var heatLayer;
 var pointLayer;
+var layerControl;
 
-// Legend
+// Data storage
+var fullYearData = null;
+var currentWeek = 1;
+
+
+// ------------------------------------------------------------
+// 2. Legend
+// ------------------------------------------------------------
 var legend = L.control({ position: "bottomright" });
 
 legend.onAdd = function () {
@@ -25,50 +35,50 @@ legend.onAdd = function () {
 
 legend.addTo(map);
 
-//Week slider
-var fullYearData = null;  // stores all weekly records for the selected year
-var currentWeek = 1;
 
-// Load GeoJSON and build layers
+// ------------------------------------------------------------
+// 3. Load a year of data
+// ------------------------------------------------------------
 function loadYear(year) {
     fetch(`data/${year}.geojson`)
         .then(response => response.json())
         .then(data => {
 
-            // Store full dataset for filtering
             fullYearData = data;
 
-            // Extract all unique weeks in this dataset
+            // Extract available weeks
             const weeks = [...new Set(
                 data.features.map(f => f.properties.week)
             )].sort((a, b) => a - b);
 
-            // Update slider min/max dynamically
+            // Update slider
             const slider = document.getElementById("weekSlider");
             slider.min = weeks[0];
             slider.max = weeks[weeks.length - 1];
-
-            // Set slider to the first available week
             slider.value = weeks[0];
+
             document.getElementById("weekLabel").textContent = weeks[0];
 
-            // Update currentWeek and draw the map
             currentWeek = weeks[0];
+
             updateMapForWeek(currentWeek);
         });
 }
 
+
+// ------------------------------------------------------------
+// 4. Update map for selected week
+// ------------------------------------------------------------
 function updateMapForWeek(week) {
 
-    // Ensure week is a number
     week = Number(week);
     currentWeek = week;
 
-    // --- 1. Detect which layer is currently active BEFORE removing anything ---
+    // --- 1. Detect active layer BEFORE removing anything ---
     const wasUsingPoints = pointLayer && map.hasLayer(pointLayer);
     const wasUsingHeat = heatLayer && map.hasLayer(heatLayer);
 
-    // --- 2. Filter features by week ---
+    // --- 2. Filter data ---
     const filtered = {
         type: "FeatureCollection",
         features: fullYearData.features.filter(f => f.properties.week === week)
@@ -78,7 +88,7 @@ function updateMapForWeek(week) {
     if (heatLayer) map.removeLayer(heatLayer);
     if (pointLayer) map.removeLayer(pointLayer);
 
-    // --- 4. Rebuild heatmap layer ---
+    // --- 4. Build heatmap ---
     const heatPoints = filtered.features.map(f => {
         const lat = f.geometry.coordinates[1];
         const lon = f.geometry.coordinates[0];
@@ -93,7 +103,7 @@ function updateMapForWeek(week) {
         maxZoom: 10
     });
 
-    // --- 5. Rebuild point layer ---
+    // --- 5. Build point layer ---
     pointLayer = L.geoJSON(filtered, {
         pointToLayer: function (feature, latlng) {
             const rate = feature.properties.rate_postings_percent;
@@ -120,12 +130,12 @@ function updateMapForWeek(week) {
     } else if (wasUsingHeat) {
         heatLayer.addTo(map);
     } else {
-        // First load fallback
-        heatLayer.addTo(map);
+        heatLayer.addTo(map); // first load
     }
 
     // --- 7. Rebuild layer toggle ---
-    layerControl.remove();
+    if (layerControl) layerControl.remove();
+
     layerControl = L.control.layers(
         { "Heatmap": heatLayer, "Points": pointLayer },
         null,
@@ -133,19 +143,25 @@ function updateMapForWeek(week) {
     ).addTo(map);
 }
 
-// Create an empty layer control (will be populated after loading data)
-var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
 
-// Load default year
-loadYear("2025");
+// ------------------------------------------------------------
+// 5. Event listeners
+// ------------------------------------------------------------
 
-// Dropdown listener
+// Year dropdown
 document.getElementById("yearSelect").addEventListener("change", function () {
     loadYear(this.value);
 });
 
+// Week slider
 document.getElementById("weekSlider").addEventListener("input", function () {
-    const week = parseInt(this.value);
+    const week = Number(this.value);
     document.getElementById("weekLabel").textContent = week;
     updateMapForWeek(week);
 });
+
+
+// ------------------------------------------------------------
+// 6. Initial load
+// ------------------------------------------------------------
+loadYear("2025");
