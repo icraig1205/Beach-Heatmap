@@ -93,7 +93,7 @@ function updateMapForWeek(week) {
         const lat = f.geometry.coordinates[1];
         const lon = f.geometry.coordinates[0];
         let weight = f.properties.rate_postings_percent || 0;
-        if (weight === 0) weight = 0.1;
+        if (weight === 0) weight = 0.001;
         return [lat, lon, weight];
     });
 
