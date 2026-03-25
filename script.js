@@ -46,8 +46,8 @@ function loadYear(year) {
 
             // Create heatmap layer
             heatLayer = L.heatLayer(heatPoints, {
-                radius: 40,
-                blur: 25,
+                radius: 25,
+                blur: 15,
                 maxZoom: 10
             });
 
