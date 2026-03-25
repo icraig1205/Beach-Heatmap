@@ -43,3 +43,23 @@ select {
 .legend span {
     line-height: 18px;
 }
+
+#weekSlider {
+    width: 80%;          /* make it longer */
+    height: 30px;        /* increase touch area */
+    margin: 10px;
+}
+
+#weekSlider::-webkit-slider-thumb {
+    width: 30px;         /* bigger thumb */
+    height: 30px;
+    background: #0078ff;
+    border-radius: 50%;
+}
+
+#weekSlider::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    background: #0078ff;
+    border-radius: 50%;
+}
