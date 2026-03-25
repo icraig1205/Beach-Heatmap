@@ -21,7 +21,8 @@ function loadYear(year) {
             var heatPoints = data.features.map(f => {
                 var lat = f.geometry.coordinates[1];
                 var lon = f.geometry.coordinates[0];
-                var weight = f.properties.rate_postings || 0;
+                var weight = f.properties.rate_postings;
+                if (weight === 0) weight = 0.1;   // give zero values a tiny weight
                 return [lat, lon, weight];
             });
 
