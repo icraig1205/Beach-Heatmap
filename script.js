@@ -98,8 +98,8 @@ function updateMapForWeek(week) {
     });
 
     heatLayer = L.heatLayer(heatPoints, {
-        radius: 25,
-        blur: 15,
+        radius: 20,
+        blur: 20,
         maxZoom: 10
     });
 
