@@ -99,7 +99,7 @@ function updateMapForWeek(week) {
 
     heatLayer = L.heatLayer(heatPoints, {
         radius: 20,
-        blur: 20,
+        blur: 25,
         maxZoom: 10
     });
 
